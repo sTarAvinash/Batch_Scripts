@@ -1,0 +1,71 @@
+' VBScript to convert multiple XLSX files to CSV
+
+' Define constants
+Const xlCSV = 6
+
+' Prompt user for the input and output folders
+inputFolder = InputBox("Enter the path to the input folder containing XLSX files:", "Input Folder")
+outputFolder = InputBox("Enter the path to the output folder for CSV files:", "Output Folder")
+
+' Check if the provided paths are valid
+If inputFolder = "" Or outputFolder = "" Then
+    WScript.Echo "Invalid input or output folder path. Script will exit."
+    WScript.Quit
+End If
+
+' Ensure paths end with a backslash
+If Right(inputFolder, 1) <> "\" Then inputFolder = inputFolder & "\"
+If Right(outputFolder, 1) <> "\" Then outputFolder = outputFolder & "\"
+
+' Create Excel application object
+Set objExcel = CreateObject("Excel.Application")
+objExcel.DisplayAlerts = False
+
+' Create FileSystemObject
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+
+' Check if input folder exists
+If Not objFSO.FolderExists(inputFolder) Then
+    WScript.Echo "Input folder does not exist. Script will exit."
+    WScript.Quit
+End If
+
+' Check if output folder exists, if not, create it
+If Not objFSO.FolderExists(outputFolder) Then
+    objFSO.CreateFolder(outputFolder)
+End If
+
+' Get a list of all XLSX files in the input folder
+Set objFolder = objFSO.GetFolder(inputFolder)
+Set objFiles = objFolder.Files
+
+' Loop through each file in the folder
+For Each objFile In objFiles
+    If LCase(objFSO.GetExtensionName(objFile.Name)) = "xlsx" Then
+        ' Define input and output file paths
+        inputFilePath = objFile.Path
+        outputFilePath = outputFolder & objFSO.GetBaseName(objFile.Name) & ".csv"
+        
+        ' Open the XLSX file
+        Set objWorkbook = objExcel.Workbooks.Open(inputFilePath)
+        
+        ' Save the file as CSV
+        objWorkbook.SaveAs outputFilePath, xlCSV
+        
+        ' Close the workbook
+        objWorkbook.Close False
+    End If
+Next
+
+' Quit Excel application
+objExcel.Quit
+
+' Release the objects
+Set objWorkbook = Nothing
+Set objExcel = Nothing
+Set objFiles = Nothing
+Set objFolder = Nothing
+Set objFSO = Nothing
+
+' Notify the user
+WScript.Echo "Batch conversion completed successfully!"
