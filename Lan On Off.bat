@@ -12,13 +12,23 @@ if %choice%==2 goto enable
 if %choice%==3 exit
 
 :disable
+echo Attempting to disable LAN connection...
 netsh interface set interface "Ethernet" admin=disable
-echo LAN connection disabled.
+if %errorlevel% neq 0 (
+    echo Failed to disable LAN connection. Please check if the network interface name is correct.
+) else (
+    echo LAN connection disabled.
+)
 pause
 goto MENU
 
 :enable
+echo Attempting to enable LAN connection...
 netsh interface set interface "Ethernet" admin=enable
-echo LAN connection enabled.
+if %errorlevel% neq 0 (
+    echo Failed to enable LAN connection. Please check if the network interface name is correct.
+) else (
+    echo LAN connection enabled.
+)
 pause
 goto MENU
